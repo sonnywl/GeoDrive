@@ -2,13 +2,9 @@
 package com.locationdocs;
 
 import android.accounts.Account;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -24,11 +20,10 @@ import com.google.android.gms.drive.Drive;
 import com.google.api.client.googleapis.extensions.android.accounts.GoogleAccountManager;
 import com.locationdocs.fragments.DriveList;
 import com.locationdocs.service.DriveSyncService;
-import com.locationdocs.service.DriveSyncService.DriveSyncBinder;
 import com.locationdocs.service.Preferences;
 
 public class MainActivity extends FragmentActivity implements ConnectionCallbacks,
-        OnConnectionFailedListener, ServiceConnection {
+        OnConnectionFailedListener {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private DriveSyncService mService;
@@ -43,15 +38,13 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
         setContentView(R.layout.activity_main);
 
         if (mGoogleApiClient == null) {
-            mGoogleApiClient = new GoogleApiClient.Builder(this)
-                    .addApi(Drive.API)
-                    .addScope(Drive.SCOPE_FILE)
-                    .addConnectionCallbacks(this)
+            mGoogleApiClient = new GoogleApiClient.Builder(this).addApi(Drive.API)
+                    .addScope(Drive.SCOPE_FILE).addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this).build();
         }
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new DriveList()).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.container, new DriveList())
+                    .commit();
         }
     }
 
@@ -81,16 +74,14 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
     protected void onResume() {
         super.onResume();
         Log.i(TAG, "OnResume called");
-        bind();
+        bindService();
         if (mGoogleApiClient == null) {
             // Create the API client and bind it to an instance variable.
             // We use this instance as the callback for connection and
             // connection failures.
             // Since no account name is passed, the user is prompted to choose.
-            mGoogleApiClient = new GoogleApiClient.Builder(this)
-                    .addApi(Drive.API)
-                    .addScope(Drive.SCOPE_FILE)
-                    .addConnectionCallbacks(this)
+            mGoogleApiClient = new GoogleApiClient.Builder(this).addApi(Drive.API)
+                    .addScope(Drive.SCOPE_FILE).addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this).build();
         }
         // Connect the client. Once connected, the camera is launched.
@@ -102,17 +93,18 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
         if (mGoogleApiClient != null) {
             mGoogleApiClient.disconnect();
         }
-        unBind();
+        unBindService();
         super.onPause();
     }
 
-    private void bind() {
+    private void bindService() {
         startService(new Intent(this, DriveSyncService.class));
+        mBound = true;
     }
 
-    private void unBind() {
+    private void unBindService() {
         if (mBound) {
-            getApplicationContext().unbindService(this);
+            stopService(new Intent(this, DriveSyncService.class));
             mBound = false;
         }
     }
@@ -125,32 +117,16 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
                 case REQUEST_CODE_RESOLUTION:
                     // Called after a file is saved to Drive.
                     Log.i(TAG, "REQUEST_CODE_RESOLUTION");
-                    mAccount =
-                            new GoogleAccountManager(getApplicationContext())
-                                    .getAccountByName(PreferenceManager
-                                            .getDefaultSharedPreferences(getApplicationContext())
-                                            .getString(
-                                                    Preferences.SELECTED_ACCOUNT_USER,
-                                                    ""));
+                    mAccount = new GoogleAccountManager(getApplicationContext())
+                            .getAccountByName(PreferenceManager.getDefaultSharedPreferences(
+                                    getApplicationContext()).getString(
+                                    Preferences.SELECTED_ACCOUNT_USER, ""));
                     if (mAccount == null) {
                         startActivity(new Intent(getApplicationContext(), Preferences.class));
                     }
                     break;
             }
         }
-    }
-
-    @Override
-    public void onServiceConnected(ComponentName name, IBinder service) {
-        Log.i(TAG, "Service is connected" + mService.hashCode());
-        DriveSyncBinder binder = (DriveSyncBinder) service;
-        mService = binder.getService();
-        mBound = true;
-    }
-
-    @Override
-    public void onServiceDisconnected(ComponentName name) {
-        Log.i(TAG, "Service is disconnected" + mService.hashCode());
     }
 
     @Override

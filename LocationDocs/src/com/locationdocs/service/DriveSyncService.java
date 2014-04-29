@@ -3,7 +3,6 @@ package com.locationdocs.service;
 
 import android.app.Service;
 import android.content.Intent;
-import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -30,9 +29,4 @@ public class DriveSyncService extends Service {
         return sSyncAdapter.getSyncAdapterBinder();
     }
 
-    public class DriveSyncBinder extends Binder {
-        public DriveSyncService getService() {
-            return DriveSyncService.this;
-        }
-    }
 }
