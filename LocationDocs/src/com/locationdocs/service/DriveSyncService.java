@@ -3,9 +3,13 @@ package com.locationdocs.service;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.IBinder;
+import android.util.Log;
 
 public class DriveSyncService extends Service {
+
+    private static final String TAG = DriveSyncService.class.getSimpleName();
 
     private static final Object sSyncAdapterLock = new Object();
 
@@ -13,6 +17,7 @@ public class DriveSyncService extends Service {
 
     @Override
     public void onCreate() {
+        Log.i(TAG, " Service Created");
         synchronized (sSyncAdapterLock) {
             if (sSyncAdapter == null) {
                 sSyncAdapter = new DriveSyncAdapter(getApplicationContext(), true);
@@ -23,5 +28,11 @@ public class DriveSyncService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return sSyncAdapter.getSyncAdapterBinder();
+    }
+
+    public class DriveSyncBinder extends Binder {
+        public DriveSyncService getService() {
+            return DriveSyncService.this;
+        }
     }
 }

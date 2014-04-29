@@ -7,14 +7,17 @@ import android.content.ContentProviderClient;
 import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
+import android.util.Log;
 
 public class DriveSyncAdapter extends AbstractThreadedSyncAdapter {
 
+    static final String TAG = DriveSyncAdapter.class.getSimpleName();
     private Context mContext;
 
     public DriveSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
         mContext = context;
+        Log.i(TAG, "DriveSyncAdapter cosntructed");
     }
 
     @Override

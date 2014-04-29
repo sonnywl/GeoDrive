@@ -27,6 +27,7 @@ public class Preferences extends PreferenceActivity {
     static final String TAG = Preferences.class.getSimpleName();
     public static final String SELECTED_ACCOUNT_USER = "selected_account_preference";
     public static final String SYNC_PREFERENCE = "sync_frequency_preference";
+    private DriveSyncAdapter syncAdapter;
 
     /**
      * Populate the activity with the top-level headers.
@@ -119,7 +120,6 @@ public class Preferences extends PreferenceActivity {
             switch (requestCode) {
                 case CHOOSE_ACCOUNT:
                     if (data != null) {
-
                         Log.e(
                                 "Preferences",
                                 "SELECTED ACCOUNT WITH EXTRA: "
