@@ -38,12 +38,6 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        if (mGoogleApiClient == null) {
-            mGoogleApiClient = new GoogleApiClient.Builder(this).addApi(Drive.API)
-                    .addScope(Drive.SCOPE_FILE).addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this).build();
-        }
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().add(R.id.container, new DriveList())
                     .commit();
@@ -75,18 +69,14 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
         super.onResume();
         Log.i(TAG, "OnResume called");
         bindService();
+        requestAccount();
         if (mGoogleApiClient == null) {
-            // Create the API client and bind it to an instance variable.
-            // We use this instance as the callback for connection and
-            // connection failures.
-            // Since no account name is passed, the user is prompted to choose.
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addApi(Drive.API)
                     .addScope(Drive.SCOPE_FILE)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this).build();
         }
-        // Connect the client. Once connected, the camera is launched.        
         mGoogleApiClient.connect();
     }
 
@@ -117,15 +107,7 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case REQUEST_CODE_RESOLUTION:
-                    // Called after a file is saved to Drive.
-                    mAccount = new GoogleAccountManager(getApplicationContext())
-                            .getAccountByName(PreferenceManager.getDefaultSharedPreferences(
-                                    getApplicationContext()).getString(
-                                    Preferences.SELECTED_ACCOUNT_USER, ""));
-                    Log.i(TAG, "REQUEST_CODE_RESOLUTION " + mAccount);
-                    if (mAccount == null) {
-                        startActivity(new Intent(getApplicationContext(), Preferences.class));
-                    }
+                    requestAccount();
                     break;
             }
         }
@@ -156,7 +138,7 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
         if (mGoogleApiClient.isConnected()) {
             Log.i(TAG, "Google API client connected.");
             DriveFolder folder = Drive.DriveApi.getRootFolder(mGoogleApiClient);
-            Log.i(TAG, "Google API folder is " + folder.listChildren(mGoogleApiClient));
+            Log.i(TAG, "Google API folder is " + folder.getDriveId());
             requestSync();
         }
     }
@@ -164,6 +146,18 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
     @Override
     public void onConnectionSuspended(int cause) {
         Log.i(TAG, "GoogleApiClient connection suspended");
+    }
+
+    private void requestAccount() {
+        // Called after a file is saved to Drive.
+        mAccount = new GoogleAccountManager(getApplicationContext())
+                .getAccountByName(PreferenceManager.getDefaultSharedPreferences(
+                        getApplicationContext()).getString(
+                        Preferences.SELECTED_ACCOUNT_USER, ""));
+        Log.i(TAG, "REQUEST_CODE_RESOLUTION " + mAccount);
+        if (mAccount == null) {
+            startActivity(new Intent(getApplicationContext(), Preferences.class));
+        }
     }
 
     private void requestSync() {
