@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">GeoDrive</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_preferences">Preferences</string>
+    <string name="action_refresh">Refresh</string>
+    
+    <string name="error_title">Error</string>
+    <string name="error_message">Error loading note</string>
+    <string name="nothing_to_save">There is nothing to save</string>
+    <string name="choose_account_title">Select an account</string>
+    <string name="menu_account">Account</string>
+    <string name="title_preferences">Preferences</string>
+    <string name="selected_account">Selected account</string>
+    <string name="title_sync_frequency">Sync frequency</string>
+    <string name="sync_frequency_default_value">900</string>
+    <string name="menu_preferences">Preferences</string>
+    <string name="summary_preferences">Edit preferences</string>
+
+</resources>
