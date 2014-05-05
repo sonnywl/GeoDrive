@@ -12,7 +12,7 @@ import android.widget.RelativeLayout;
 import com.geodrive.DriveFileInfo;
 import com.geodrive.MainActivity;
 import com.geodrive.adaptor.DriveListAdapter;
-import com.locationdocs.R;
+import com.geodrive.R;
 
 public class DriveList extends ListFragment {
     static final String TAG = DriveList.class.getSimpleName();

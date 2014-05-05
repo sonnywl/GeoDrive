@@ -19,7 +19,7 @@ import android.util.Log;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.common.AccountPicker;
 import com.google.api.client.googleapis.extensions.android.accounts.GoogleAccountManager;
-import com.locationdocs.R;
+import com.geodrive.R;
 
 import java.util.List;
 

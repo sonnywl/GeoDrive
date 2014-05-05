@@ -23,14 +23,12 @@ import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListe
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveFolder;
 import com.google.api.client.googleapis.extensions.android.accounts.GoogleAccountManager;
-import com.locationdocs.R;
 
 public class MainActivity extends FragmentActivity implements ConnectionCallbacks,
         OnConnectionFailedListener {
     public static final String AUTHORITY = "com.google.provider.NotePad";
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private DriveSyncService mService;
     private GoogleApiClient mGoogleApiClient;
     private static final int REQUEST_CODE_RESOLUTION = 0;
     private Account mAccount;
@@ -54,7 +52,6 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
@@ -66,7 +63,7 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-
+            Log.i(TAG, "Refresh Clicked");
         } else if (id == R.id.action_preference) {
             startActivity(new Intent(getApplicationContext(), Preferences.class));
         }
@@ -89,7 +86,7 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this).build();
         }
-        // Connect the client. Once connected, the camera is launched.
+        // Connect the client. Once connected, the camera is launched.        
         mGoogleApiClient.connect();
     }
 
