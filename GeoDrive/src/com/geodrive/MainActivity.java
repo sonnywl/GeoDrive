@@ -39,7 +39,8 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction().add(R.id.container, new DriveList())
+            getSupportFragmentManager().beginTransaction()
+                    .add(new DriveList(), DriveList.TAG)
                     .commit();
         }
     }
@@ -58,6 +59,12 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
             Log.i(TAG, "Refresh Clicked");
+            DriveList driveList = (DriveList) getSupportFragmentManager().findFragmentByTag(
+                    DriveList.TAG);
+            DriveFolder folder = Drive.DriveApi.getRootFolder(mGoogleApiClient);
+            Log.i(TAG, "Google API folder is " + folder.getDriveId());
+            folder.listChildren(mGoogleApiClient);
+            driveList.refreshList();
         } else if (id == R.id.action_preference) {
             startActivity(new Intent(getApplicationContext(), Preferences.class));
         }
@@ -137,8 +144,6 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
 
         if (mGoogleApiClient.isConnected()) {
             Log.i(TAG, "Google API client connected.");
-            DriveFolder folder = Drive.DriveApi.getRootFolder(mGoogleApiClient);
-            Log.i(TAG, "Google API folder is " + folder.getDriveId());
             requestSync();
         }
     }
@@ -171,5 +176,9 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
                 ContentResolver.requestSync(account, "com.geodrive.MainActivity", options);
             }
         }
+    }
+
+    public GoogleApiClient getGoogleApiClient() {
+        return mGoogleApiClient;
     }
 }
