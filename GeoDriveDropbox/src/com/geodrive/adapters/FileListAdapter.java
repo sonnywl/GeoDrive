@@ -1,41 +1,42 @@
 
-package com.geodrive.adaptor;
+package com.geodrive.adapters;
 
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.geodrive.DriveFileInfo;
 import com.geodrive.R;
-import com.google.android.gms.drive.Metadata;
-import com.google.android.gms.drive.MetadataBuffer;
-import com.google.android.gms.drive.widget.DataBufferAdapter;
+import com.geodrive.files.FileInfo;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
-public class DriveListAdapter extends DataBufferAdapter<DriveFileInfo> {
-    public static final String TAG = DriveListAdapter.class.getSimpleName();
+public class FileListAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
-    private ArrayList<DriveFileInfo> driveFiles;
+    private FileInfo[] fileList;
 
-    public DriveListAdapter(Context context, ArrayList<DriveFileInfo> files) {
-        super(context, IGNORE_ITEM_VIEW_TYPE);
+    public FileListAdapter(Context context, FileInfo[] fileInfos) {
         mInflater = LayoutInflater.from(context);
-        driveFiles = files;
+        fileList = fileInfos;
+    }
+    
+    public void updateInfo(FileInfo[] files) {
+        fileList = null;
+        fileList = files;
+        notifyDataSetChanged();
+        Log.i("ADAPTER", "updating info called "+files.length);
+
     }
 
     @Override
     public int getCount() {
-        return driveFiles.size();
+        return fileList.length;
     }
 
     @Override
-    public DriveFileInfo getItem(int position) {
-        return driveFiles.get(position);
+    public Object getItem(int position) {
+        return fileList[position];
     }
 
     @Override
@@ -46,6 +47,7 @@ public class DriveListAdapter extends DataBufferAdapter<DriveFileInfo> {
     @Override
     public View getView(int position, View view, ViewGroup parent) {
         final ViewHolder holder;
+        Log.i("ADAPTER", "updating ");
         if (view == null) {
             view = mInflater.inflate(R.layout.folder_list_adapter, parent, false);
             holder = new ViewHolder();
@@ -57,25 +59,16 @@ public class DriveListAdapter extends DataBufferAdapter<DriveFileInfo> {
         holder.name = (TextView) view.findViewById(R.id.list_name);
         holder.description = (TextView) view.findViewById(R.id.list_description);
 
-        DriveFileInfo file = driveFiles.get(position);
+        FileInfo file = fileList[position];
         holder.name.setText(file.getFilename());
         holder.description.setText(file.getMetadata());
 
         return view;
-
     }
 
     private static class ViewHolder {
         TextView name;
         TextView description;
-    }
-
-    public void append(MetadataBuffer buffer) {
-        Iterator<Metadata> iterator = buffer.iterator();
-        while(iterator.hasNext()) {
-            Metadata data = iterator.next();
-            Log.i(TAG, data.getTitle());
-        }
     }
 
 }

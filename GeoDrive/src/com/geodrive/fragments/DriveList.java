@@ -77,7 +77,8 @@ public class DriveList extends ListFragment {
                         Log.e(TAG, "Problem while retrieving files");
                         return;
                     }
-                    Log.i(TAG, "Adding MetaData");
+                    Log.i(TAG, "Adding MetaData ");
+                    
                     mResultsAdapter.append(result.getMetadataBuffer());
                     mNextPageToken = result.getMetadataBuffer().getNextPageToken();
                     mHasMore = mNextPageToken != null;

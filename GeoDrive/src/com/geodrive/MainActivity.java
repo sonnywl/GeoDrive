@@ -22,7 +22,13 @@ import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveFolder;
+import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.accounts.GoogleAccountManager;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.drive.DriveScopes;
+
+import java.util.Arrays;
 
 public class MainActivity extends FragmentActivity implements ConnectionCallbacks,
         OnConnectionFailedListener {
@@ -59,6 +65,8 @@ public class MainActivity extends FragmentActivity implements ConnectionCallback
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
             Log.i(TAG, "Refresh Clicked");
+            GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
+                    this, Arrays.asList(DriveScopes.DRIVE));
             DriveList driveList = (DriveList) getSupportFragmentManager().findFragmentByTag(
                     DriveList.TAG);
             DriveFolder folder = Drive.DriveApi.getRootFolder(mGoogleApiClient);

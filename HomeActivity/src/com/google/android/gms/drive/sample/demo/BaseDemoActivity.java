@@ -40,7 +40,7 @@ public abstract class BaseDemoActivity extends Activity implements
      * DriveId of an existing folder to be used as a parent folder in
      * folder operations samples.
      */
-    public static final String EXISTING_FOLDER_ID = "0B2EEtIjPUdX6MERsWlYxN3J6RU0";
+    public static final String EXISTING_FOLDER_ID = "CAESBHJvb3QYaCC-j7OsplE=";
 
     /**
      * DriveId of an existing file to be used in file operation samples..
