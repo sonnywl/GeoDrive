@@ -20,13 +20,11 @@ public class FileListAdapter extends BaseAdapter {
         mInflater = LayoutInflater.from(context);
         fileList = fileInfos;
     }
-    
+
     public void updateInfo(FileInfo[] files) {
         fileList = null;
         fileList = files;
         notifyDataSetChanged();
-        Log.i("ADAPTER", "updating info called "+files.length);
-
     }
 
     @Override
@@ -47,7 +45,6 @@ public class FileListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View view, ViewGroup parent) {
         final ViewHolder holder;
-        Log.i("ADAPTER", "updating ");
         if (view == null) {
             view = mInflater.inflate(R.layout.folder_list_adapter, parent, false);
             holder = new ViewHolder();

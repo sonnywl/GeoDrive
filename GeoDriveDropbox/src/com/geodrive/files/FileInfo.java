@@ -1,18 +1,28 @@
 
 package com.geodrive.files;
 
+import com.dropbox.client2.DropboxAPI.Entry;
+
 public class FileInfo {
-    private String filename;
 
     private String metadata;
+    private Entry entry;
 
-    public FileInfo(String file, String data) {
-        filename = file;
-        metadata = data;
+    public FileInfo(Entry e) {
+        entry = e;
+        metadata = e.path;
+    }
+
+    public Entry getEntry() {
+        return entry;
     }
 
     public String getFilename() {
-        return filename;
+        return entry.fileName();
+    }
+
+    public boolean isDirectory() {
+        return entry.isDir;
     }
 
     public String getMetadata() {
@@ -20,6 +30,6 @@ public class FileInfo {
     }
 
     public String toString() {
-        return filename + "  " + metadata;
+        return entry.fileName() + "  " + entry.isDir + "  " + metadata;
     }
 }
