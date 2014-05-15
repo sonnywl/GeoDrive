@@ -6,5 +6,6 @@
     <string name="login">Login</string>
     <string name="logout">Logout</string>
     <string name="refresh">Refresh</string>
-
+    <string name="up">Up</string>
+    
 </resources>

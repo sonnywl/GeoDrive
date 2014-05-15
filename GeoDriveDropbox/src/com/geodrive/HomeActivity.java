@@ -2,20 +2,21 @@
 package com.geodrive;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.geodrive.files.FileManager;
+import com.geodrive.files.dropbox.DataStoreManager;
 import com.geodrive.fragments.FileList;
 import com.geodrive.preferences.SharedPreferenceManager;
 
-public class HomeActivity extends FragmentActivity {
+public class HomeActivity extends ActionBarActivity {
     public static String TAG = HomeActivity.class.getSimpleName();
     private SharedPreferenceManager sManager;
     private FileManager fManager;
-
+    private DataStoreManager dManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "OnCreate");
@@ -29,7 +30,7 @@ public class HomeActivity extends FragmentActivity {
         }
         sManager = SharedPreferenceManager.getInstance(getApplicationContext());
         fManager = FileManager.getInstance(getApplicationContext());
-        Log.i("MAIN", "Starting Authentication " + fManager.isLinked());
+        dManager = DataStoreManager.getInstance(getApplicationContext(), this);
     }
 
     @Override
@@ -47,6 +48,8 @@ public class HomeActivity extends FragmentActivity {
         } else if (id == R.id.action_logout) {
             sManager.clearAll();
             fManager.unlink();
+        } else if(id == R.id.action_refresh) {
+            dManager.connect();
         }
         return super.onOptionsItemSelected(item);
     }

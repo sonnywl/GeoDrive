@@ -2,7 +2,6 @@
 package com.geodrive.adapters;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,10 +54,11 @@ public class FileListAdapter extends BaseAdapter {
 
         holder.name = (TextView) view.findViewById(R.id.list_name);
         holder.description = (TextView) view.findViewById(R.id.list_description);
+        holder.description.setVisibility(View.GONE);
 
         FileInfo file = fileList[position];
         holder.name.setText(file.getFilename());
-        holder.description.setText(file.getMetadata());
+//        holder.description.setText(file.getMetadata());
 
         return view;
     }

@@ -2,7 +2,6 @@
 package com.geodrive.files.tasks;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.DropboxAPI.Entry;
@@ -40,10 +39,8 @@ public class FileQueryTask extends AsyncTask<String, Void, FileInfo[]> {
                     // OF EVERY FILE
                     for (int i = 0; i < contents.size(); i++) {
                         Entry e = contents.get(i);
-                        String a = e.fileName();
                         FileInfo file = new FileInfo(e);
                         files.add(file);
-                        Log.d("dropbox", "FileName:" + a);
                     }
                 }
                 return files.toArray(new FileInfo[files.size()]);

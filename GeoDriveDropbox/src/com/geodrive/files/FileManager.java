@@ -2,18 +2,13 @@
 package com.geodrive.files;
 
 import android.content.Context;
-import android.content.Intent;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.Uri;
-import android.os.Bundle;
 import android.util.Log;
 
 import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.DropboxAPI.Entry;
 import com.dropbox.client2.android.AndroidAuthSession;
-import com.dropbox.client2.exception.DropboxException;
 import com.dropbox.client2.session.AppKeyPair;
 import com.geodrive.StaticInfo;
 import com.geodrive.files.tasks.FileDownloadTask;
@@ -23,37 +18,23 @@ import com.geodrive.files.tasks.FileUploadTask;
 import com.geodrive.preferences.SharedPreferenceManager;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
-public class FileManager implements FileTaskListener, LocationListener {
+public class FileManager implements FileTaskListener {
 
     public static final String TAG = FileManager.class.getSimpleName();
-    private static FileManager manager;
+    private static FileManager fileManager;
+    private LocationManager locManager;
+    private IFileLocationListener locListener;
     private SharedPreferenceManager sManager;
-    private ArrayList<FileManagerListener> fileManagerClients;
-    private LocationManager lService;
+    private ArrayList<IFileManagerListener> fileManagerClients;
     private Entry targetEntry;
-    private boolean isGPSEnabled = false,
-            isNetworkEnabled = false,
-            canGetLocation = false;
-
-    Location location; // location
-    double latitude; // latitude
-    double longitude; // longitude
-
-    // The minimum distance to change Updates in meters
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
-
-    // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // 1 minute
 
     public static FileManager getInstance(Context applicationContext) {
-        if (manager == null) {
-            manager = new FileManager(applicationContext);
+        if (fileManager == null) {
+            fileManager = new FileManager(applicationContext);
         }
-        return manager;
+        return fileManager;
     }
 
     private Context mContext;
@@ -64,8 +45,10 @@ public class FileManager implements FileTaskListener, LocationListener {
         sManager = SharedPreferenceManager.getInstance(mContext);
         AndroidAuthSession session = buildSession();
         mDBApi = new DropboxAPI<AndroidAuthSession>(session);
-        fileManagerClients = new ArrayList<FileManagerListener>();
-        lService = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        fileManagerClients = new ArrayList<IFileManagerListener>();
+        locManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+        locListener = new IFileLocationListener(mContext);
+        locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 1, locListener);
     }
 
     public void getDirectoryInfo(String dir) {
@@ -85,8 +68,8 @@ public class FileManager implements FileTaskListener, LocationListener {
     @Override
     public void notifyFileManagerListener(FileTaskState state) {
         if (state == FileTaskState.COMPLETED_DOWNLOAD) {
-            String cachePath = mContext.getExternalCacheDir().getAbsolutePath()
-                    + File.separator + targetEntry.fileName();
+            String cachePath = mContext.getExternalCacheDir().getAbsolutePath() + File.separator
+                    + targetEntry.fileName();
             openFile(targetEntry, cachePath);
         }
     }
@@ -97,7 +80,7 @@ public class FileManager implements FileTaskListener, LocationListener {
 
     @Override
     public void notifyFileTaskListener(FileInfo[] files) {
-        for (FileManagerListener listener : fileManagerClients) {
+        for (IFileManagerListener listener : fileManagerClients) {
             listener.notifyFileManagerListener(files);
         }
     }
@@ -106,17 +89,15 @@ public class FileManager implements FileTaskListener, LocationListener {
         String oauth2AccessToken = session.getOAuth2AccessToken();
         sManager.updateString(StaticInfo.APP_KEY, "oauth2:");
         sManager.updateString(StaticInfo.APP_SECRET, oauth2AccessToken);
-        sManager.updateBoolean(StaticInfo.APP_AUTH, true);
-        Log.i(TAG,
-                "Stored " + sManager.getStringValue(StaticInfo.APP_SECRET, "Error:"
-                        + oauth2AccessToken));
+        Log.i(TAG, "Stored "
+                + sManager.getStringValue(
+                        StaticInfo.APP_DATASTORE_SECRET, "Token:" + oauth2AccessToken));
     }
 
     private void loadAuth(AndroidAuthSession session) {
         String tokenKey = sManager.getStringValue(StaticInfo.APP_KEY, null);
         String secret = sManager.getStringValue(StaticInfo.APP_SECRET, null);
-        if (tokenKey == null || secret == null ||
-                tokenKey.length() == 0 || secret.length() == 0) {
+        if (tokenKey == null || secret == null || tokenKey.length() == 0 || secret.length() == 0) {
             return;
         }
         session.setOAuth2AccessToken(secret);
@@ -138,10 +119,15 @@ public class FileManager implements FileTaskListener, LocationListener {
     }
 
     private AndroidAuthSession buildSession() {
-        AppKeyPair appKeyPair = new AppKeyPair(StaticInfo.APP_KEY, StaticInfo.APP_SECRET);
+        AppKeyPair appKeyPair = new AppKeyPair(StaticInfo.APP_KEY,
+                StaticInfo.APP_SECRET);
         AndroidAuthSession session = new AndroidAuthSession(appKeyPair);
         loadAuth(session);
         return session;
+    }
+
+    public Location updateLocation() {
+        return locListener.updateLocation();
     }
 
     public boolean isLinked() {
@@ -156,94 +142,12 @@ public class FileManager implements FileTaskListener, LocationListener {
         mDBApi.getSession().unlink();
     }
 
-    public void addFileManagerListener(FileManagerListener listener) {
+    public void addFileManagerListener(IFileManagerListener listener) {
         fileManagerClients.add(listener);
     }
 
-    public void removeFileManagerListener(FileManagerListener listener) {
+    public void removeFileManagerListener(IFileManagerListener listener) {
         fileManagerClients.remove(listener);
-    }
-
-    private Location updateLocation() {
-        try {
-            // getting GPS status
-            isGPSEnabled = lService
-                    .isProviderEnabled(LocationManager.GPS_PROVIDER);
-
-            // getting network status
-            isNetworkEnabled = lService
-                    .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-
-            if (!isGPSEnabled && !isNetworkEnabled) {
-                // no network provider is enabled
-            } else {
-                this.canGetLocation = true;
-                // First get location from Network Provider
-                if (isNetworkEnabled) {
-                    lService.requestLocationUpdates(
-                            LocationManager.NETWORK_PROVIDER,
-                            MIN_TIME_BW_UPDATES,
-                            MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                    Log.d("Network", "Network");
-                    if (lService != null) {
-                        location = lService
-                                .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                        if (location != null) {
-                            latitude = location.getLatitude();
-                            longitude = location.getLongitude();
-                        }
-                    }
-                }
-                // if GPS Enabled get lat/long using GPS Services
-                if (isGPSEnabled) {
-                    if (location == null) {
-                        lService.requestLocationUpdates(
-                                LocationManager.GPS_PROVIDER,
-                                MIN_TIME_BW_UPDATES,
-                                MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                        Log.d("GPS Enabled", "GPS Enabled");
-                        if (lService != null) {
-                            location = lService
-                                    .getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                            if (location != null) {
-                                latitude = location.getLatitude();
-                                longitude = location.getLongitude();
-                            }
-                        }
-                    }
-                }
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return location;
-    }
-
-    // ----- Location Based Information
-    @Override
-    public void onLocationChanged(Location location) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-        // TODO Auto-generated method stub
-
     }
 
 }

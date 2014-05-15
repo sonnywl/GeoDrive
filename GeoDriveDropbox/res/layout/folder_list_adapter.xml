@@ -1,22 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="50sp"
+    android:gravity="center" >
 
     <TextView
         android:id="@+id/list_name"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:textSize="15sp"
-        android:textStyle="bold" />
-
+        android:layout_centerInParent="true"
+        android:padding="3sp"
+        android:textSize="18sp" />
+    <!--
     <View
         android:id="@+id/separator"
         android:layout_width="fill_parent"
         android:layout_height="1dip"
         android:layout_alignTop="@+id/list_description"
         android:background="#000000" />
+    -->
 
     <TextView
         android:id="@+id/list_description"
