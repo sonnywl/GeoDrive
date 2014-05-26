@@ -13,4 +13,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true" />
+
+    <TextView
+        android:id="@android:id/empty"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/DropboxNotConnected" />
+
 </RelativeLayout>

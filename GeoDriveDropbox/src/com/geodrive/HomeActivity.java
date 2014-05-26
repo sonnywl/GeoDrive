@@ -10,13 +10,17 @@ import android.view.MenuItem;
 import com.geodrive.files.FileManager;
 import com.geodrive.files.dropbox.DataStoreManager;
 import com.geodrive.fragments.FileList;
+import com.geodrive.fragments.dialog.FileDialog;
+import com.geodrive.fragments.dialog.FileDialog.FileDialogOptions;
 import com.geodrive.preferences.SharedPreferenceManager;
 
-public class HomeActivity extends ActionBarActivity {
+public class HomeActivity extends ActionBarActivity
+        implements FileDialog.FileDialogOnClickListener {
     public static String TAG = HomeActivity.class.getSimpleName();
     private SharedPreferenceManager sManager;
     private FileManager fManager;
     private DataStoreManager dManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "OnCreate");
@@ -48,8 +52,10 @@ public class HomeActivity extends ActionBarActivity {
         } else if (id == R.id.action_logout) {
             sManager.clearAll();
             fManager.unlink();
-        } else if(id == R.id.action_refresh) {
-            dManager.connect();
+        } else if (id == R.id.action_refresh) {
+            // dManager.getLinkedAccount();
+        } else if (id == R.id.action_clear) {
+            dManager.deleteAll();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -57,17 +63,25 @@ public class HomeActivity extends ActionBarActivity {
     @Override
     public void onResume() {
         super.onResume();
-        Log.i(TAG, "OnResume");
         fManager.checkAuth();
     }
 
     @Override
     public void onPause() {
-        Log.i(TAG, "Onpause");
         super.onPause();
     }
 
     public FileManager getFileManager() {
         return fManager;
+    }
+
+    public DataStoreManager getDataStoreManager() {
+        return dManager;
+    }
+
+    @Override
+    public void notifyDialogListener(FileDialogOptions options) {
+        FileList list = (FileList) getSupportFragmentManager().findFragmentById(R.id.container);
+        list.notifyDialogListener(options);
     }
 }

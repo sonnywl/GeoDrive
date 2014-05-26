@@ -10,7 +10,7 @@ import com.dropbox.client2.DropboxAPI.DropboxFileInfo;
 import com.dropbox.client2.DropboxAPI.Entry;
 import com.dropbox.client2.android.AndroidAuthSession;
 import com.dropbox.client2.exception.DropboxException;
-import com.geodrive.files.tasks.FileTaskListener.FileTaskState;
+import com.geodrive.files.tasks.IFileTaskListener.FileTaskState;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,11 +20,11 @@ public class FileDownloadTask extends AsyncTask<Entry, Void, Void> {
     public static final String TAG = FileDownloadTask.class.getSimpleName();
     private Context mContext;
     private DropboxAPI<AndroidAuthSession> mDBApi;
-    private FileTaskListener mListener;
+    private IFileTaskListener mListener;
 
     public FileDownloadTask(
             Context context, DropboxAPI<AndroidAuthSession> mApi,
-            FileTaskListener listener) {
+            IFileTaskListener listener) {
         mContext = context;
         mDBApi = mApi;
         mListener = listener;

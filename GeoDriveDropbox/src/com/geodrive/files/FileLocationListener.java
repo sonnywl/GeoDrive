@@ -14,11 +14,13 @@ import android.widget.Toast;
  * 
  * @author Sonny
  */
-public class IFileLocationListener implements LocationListener {
+public class FileLocationListener implements LocationListener {
     private LocationManager locManager;
 
-    private boolean isGPSEnabled = false, isNetworkEnabled = false, canGetLocation = false;
-    private LocationListener listener;
+    private boolean isGPSEnabled = false,
+            isNetworkEnabled = false,
+            canGetLocation = false;
+
     Location location; // location
     double latitude; // latitude
     double longitude; // longitude
@@ -31,7 +33,7 @@ public class IFileLocationListener implements LocationListener {
 
     private Context mContext;
 
-    public IFileLocationListener(Context applicationContext) {
+    public FileLocationListener(Context applicationContext) {
         mContext = applicationContext;
         locManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
 
@@ -94,25 +96,25 @@ public class IFileLocationListener implements LocationListener {
         String lat = String.valueOf(location.getLatitude());
         String lon = String.valueOf(location.getLongitude());
         Toast.makeText(mContext, "location changed: lat=" + lat + ", lon=" + lon
-                , Toast.LENGTH_SHORT).show();;
+                , Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
         Toast.makeText(mContext, "status changed to " + provider + " [" + status + "]"
-                , Toast.LENGTH_SHORT).show();;
+                , Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onProviderEnabled(String provider) {
         Toast.makeText(mContext, "provider enabled " + provider
-                , Toast.LENGTH_SHORT).show();;
+                , Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onProviderDisabled(String provider) {
         Toast.makeText(mContext, "provider disabled " + provider
-                , Toast.LENGTH_SHORT).show();;
+                , Toast.LENGTH_SHORT).show();
     }
 
 }

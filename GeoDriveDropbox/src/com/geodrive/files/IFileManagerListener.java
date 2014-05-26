@@ -10,7 +10,7 @@ public interface IFileManagerListener {
      * 
      * @author Sonny
      */
-    void notifyFileManagerFileReady(Entry file, String cacheDir);
+    void notifyFileManagerFileIsReady(Entry file, String cacheDir);
 
-    void notifyFileManagerListener(FileInfo[] files);
+    void notifyFileManagerListener(Entry[] files);
 }

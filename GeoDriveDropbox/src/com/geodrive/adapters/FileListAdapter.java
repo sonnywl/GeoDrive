@@ -8,19 +8,19 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.dropbox.client2.DropboxAPI.Entry;
 import com.geodrive.R;
-import com.geodrive.files.FileInfo;
 
 public class FileListAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
-    private FileInfo[] fileList;
+    private Entry[] fileList;
 
-    public FileListAdapter(Context context, FileInfo[] fileInfos) {
+    public FileListAdapter(Context context, Entry[] fileInfos) {
         mInflater = LayoutInflater.from(context);
         fileList = fileInfos;
     }
 
-    public void updateInfo(FileInfo[] files) {
+    public void updateInfo(Entry[] files) {
         fileList = null;
         fileList = files;
         notifyDataSetChanged();
@@ -56,8 +56,8 @@ public class FileListAdapter extends BaseAdapter {
         holder.description = (TextView) view.findViewById(R.id.list_description);
         holder.description.setVisibility(View.GONE);
 
-        FileInfo file = fileList[position];
-        holder.name.setText(file.getFilename());
+        Entry file = fileList[position];
+        holder.name.setText(file.fileName());
 //        holder.description.setText(file.getMetadata());
 
         return view;

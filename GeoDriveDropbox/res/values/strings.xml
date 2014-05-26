@@ -7,5 +7,6 @@
     <string name="logout">Logout</string>
     <string name="refresh">Refresh</string>
     <string name="up">Up</string>
-    
+    <string name="DropboxNotConnected"> Dropbox Not Connected</string>
+    <string name="clear">Clear All</string>
 </resources>

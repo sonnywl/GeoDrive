@@ -1,9 +1,9 @@
 
 package com.geodrive.files.tasks;
 
-import com.geodrive.files.FileInfo;
+import com.dropbox.client2.DropboxAPI.Entry;
 
-public interface FileTaskListener {
+public interface IFileTaskListener {
     public enum FileTaskState {
         COMPLETED_DOWNLOAD, FAILED_DOWNLOAD, IN_PROGRESS_DOWNLOAD,
         COMPLETED_UPLOAD, FAILED_UPLOAD, IN_PROGRESS_UPLOAD
@@ -16,5 +16,5 @@ public interface FileTaskListener {
      */
     void notifyFileManagerListener(FileTaskState state);
 
-    void notifyFileTaskListener(FileInfo[] files);
+    void notifyFileTaskListener(Entry[] files);
 }

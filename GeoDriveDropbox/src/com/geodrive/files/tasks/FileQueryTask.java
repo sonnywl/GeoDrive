@@ -8,25 +8,24 @@ import com.dropbox.client2.DropboxAPI.Entry;
 import com.dropbox.client2.android.AndroidAuthSession;
 import com.dropbox.client2.exception.DropboxException;
 import com.dropbox.client2.exception.DropboxUnlinkedException;
-import com.geodrive.files.FileInfo;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileQueryTask extends AsyncTask<String, Void, FileInfo[]> {
+public class FileQueryTask extends AsyncTask<String, Void, Entry[]> {
     public static final String TAG = FileQueryTask.class.getSimpleName();
     private DropboxAPI<AndroidAuthSession> mDBApi;
-    private FileTaskListener mListener;
+    private IFileTaskListener mListener;
 
-    public FileQueryTask(DropboxAPI<AndroidAuthSession> mApi, FileTaskListener listener) {
+    public FileQueryTask(DropboxAPI<AndroidAuthSession> mApi, IFileTaskListener listener) {
         mDBApi = mApi;
         mListener = listener;
     }
 
     @Override
-    protected FileInfo[] doInBackground(String... dir) {
+    protected Entry[] doInBackground(String... dir) {
         Entry dropboxDir;
-        ArrayList<FileInfo> files = new ArrayList<FileInfo>();
+        ArrayList<Entry> files = new ArrayList<Entry>();
         if (dir[0].length() == 0) {
             dir[0] = "/";
         }
@@ -39,27 +38,27 @@ public class FileQueryTask extends AsyncTask<String, Void, FileInfo[]> {
                     // OF EVERY FILE
                     for (int i = 0; i < contents.size(); i++) {
                         Entry e = contents.get(i);
-                        FileInfo file = new FileInfo(e);
-                        files.add(file);
+                        files.add(e);
                     }
                 }
-                return files.toArray(new FileInfo[files.size()]);
+                return files.toArray(new Entry[files.size()]);
             } else {
                 Entry e = dropboxDir.contents.get(0);
-                return files.toArray(new FileInfo[] {
-                        new FileInfo(e)
-                });
+                return files.toArray(
+                        new Entry[] {
+                            e
+                        });
             }
         } catch (DropboxUnlinkedException e) {
             e.printStackTrace();
         } catch (DropboxException e1) {
             e1.printStackTrace();
         }
-        return new FileInfo[] {};
+        return new Entry[] {};
     }
 
     @Override
-    protected void onPostExecute(FileInfo[] files) {
+    protected void onPostExecute(Entry[] files) {
         mListener.notifyFileTaskListener(files);
     }
 }

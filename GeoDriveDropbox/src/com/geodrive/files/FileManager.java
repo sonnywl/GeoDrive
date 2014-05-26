@@ -2,8 +2,6 @@
 package com.geodrive.files;
 
 import android.content.Context;
-import android.location.Location;
-import android.location.LocationManager;
 import android.util.Log;
 
 import com.dropbox.client2.DropboxAPI;
@@ -13,19 +11,17 @@ import com.dropbox.client2.session.AppKeyPair;
 import com.geodrive.StaticInfo;
 import com.geodrive.files.tasks.FileDownloadTask;
 import com.geodrive.files.tasks.FileQueryTask;
-import com.geodrive.files.tasks.FileTaskListener;
 import com.geodrive.files.tasks.FileUploadTask;
+import com.geodrive.files.tasks.IFileTaskListener;
 import com.geodrive.preferences.SharedPreferenceManager;
 
 import java.io.File;
 import java.util.ArrayList;
 
-public class FileManager implements FileTaskListener {
+public class FileManager implements IFileTaskListener {
 
     public static final String TAG = FileManager.class.getSimpleName();
     private static FileManager fileManager;
-    private LocationManager locManager;
-    private IFileLocationListener locListener;
     private SharedPreferenceManager sManager;
     private ArrayList<IFileManagerListener> fileManagerClients;
     private Entry targetEntry;
@@ -46,21 +42,18 @@ public class FileManager implements FileTaskListener {
         AndroidAuthSession session = buildSession();
         mDBApi = new DropboxAPI<AndroidAuthSession>(session);
         fileManagerClients = new ArrayList<IFileManagerListener>();
-        locManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-        locListener = new IFileLocationListener(mContext);
-        locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 1, locListener);
     }
 
-    public void getDirectoryInfo(String dir) {
+    public void getDirectoryInfo(final String dir) {
         new FileQueryTask(mDBApi, this).execute(dir);
     }
 
-    public void uploadFile(Entry fileEntry) {
+    public void uploadFile(final Entry fileEntry) {
         targetEntry = fileEntry;
         new FileUploadTask(mContext, mDBApi, this).execute(fileEntry);
     }
 
-    public void downloadFile(Entry fileEntry) {
+    public void downloadFile(final Entry fileEntry) {
         targetEntry = fileEntry;
         new FileDownloadTask(mContext, mDBApi, this).execute(fileEntry);
     }
@@ -75,11 +68,11 @@ public class FileManager implements FileTaskListener {
     }
 
     public void openFile(Entry fileEntry, String cacheDir) {
-        fileManagerClients.get(0).notifyFileManagerFileReady(fileEntry, cacheDir);
+        fileManagerClients.get(0).notifyFileManagerFileIsReady(fileEntry, cacheDir);
     }
 
     @Override
-    public void notifyFileTaskListener(FileInfo[] files) {
+    public void notifyFileTaskListener(Entry[] files) {
         for (IFileManagerListener listener : fileManagerClients) {
             listener.notifyFileManagerListener(files);
         }
@@ -124,10 +117,6 @@ public class FileManager implements FileTaskListener {
         AndroidAuthSession session = new AndroidAuthSession(appKeyPair);
         loadAuth(session);
         return session;
-    }
-
-    public Location updateLocation() {
-        return locListener.updateLocation();
     }
 
     public boolean isLinked() {

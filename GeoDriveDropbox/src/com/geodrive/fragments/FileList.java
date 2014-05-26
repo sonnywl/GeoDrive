@@ -2,7 +2,6 @@
 package com.geodrive.fragments;
 
 import android.content.Intent;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -18,24 +17,33 @@ import com.dropbox.client2.DropboxAPI.Entry;
 import com.geodrive.HomeActivity;
 import com.geodrive.R;
 import com.geodrive.adapters.FileListAdapter;
-import com.geodrive.files.FileInfo;
 import com.geodrive.files.FileManager;
 import com.geodrive.files.IFileManagerListener;
+import com.geodrive.files.dropbox.DataStoreManager;
 import com.geodrive.fragments.dialog.FileDialog;
-import com.geodrive.fragments.dialog.FileDialogOnClickListener;
+import com.geodrive.fragments.dialog.FileDialog.FileDialogOptions;
 
 import java.io.File;
 
 public class FileList extends ListFragment implements IFileManagerListener,
-        FileDialogOnClickListener {
+        FileDialog.FileDialogOnClickListener {
     public static String TAG = FileList.class.getSimpleName();
     public static final String DIR = "CUR_DIR";
     public String directory = "/";
     HomeActivity activity;
     FileDialog dialog;
-    FileInfo fileTarget;
+    Entry fileTarget;
     FileListAdapter mAdapter;
     FileManager fManager;
+    DataStoreManager dManager;
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mAdapter = new FileListAdapter(activity, new Entry[] {});
+        setListAdapter(mAdapter);
+        registerForContextMenu(getListView());
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -43,6 +51,7 @@ public class FileList extends ListFragment implements IFileManagerListener,
         activity = (HomeActivity) getActivity();
         fManager = activity.getFileManager();
         fManager.addFileManagerListener(this);
+        dManager = activity.getDataStoreManager();
         setHasOptionsMenu(true);
         if (savedInstanceState != null) {
             updateList(savedInstanceState.getString(DIR));
@@ -55,20 +64,18 @@ public class FileList extends ListFragment implements IFileManagerListener,
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mAdapter = new FileListAdapter(activity, new FileInfo[] {});
-        setListAdapter(mAdapter);
-        registerForContextMenu(getListView());
+    public void onDestroyView() {
+        fManager.removeFileManagerListener(this);
+        super.onDestroyView();
     }
 
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
-        fileTarget = (FileInfo) mAdapter.getItem(position);
-        if (!fileTarget.isDirectory()) {
+        fileTarget = (Entry) mAdapter.getItem(position);
+        if (!fileTarget.isDir) {
             showFileDialog();
         } else {
-            updateList(fileTarget.getEntry().path);
+            updateList(fileTarget.path);
         }
     }
 
@@ -81,9 +88,6 @@ public class FileList extends ListFragment implements IFileManagerListener,
             if (directory.length() > 1) {
                 updateList(directory.substring(0, directory.lastIndexOf("/")));
             }
-        } else if (id == R.id.action_refresh) {
-            Location loc = fManager.updateLocation();
-            Log.i(TAG, "Got " + loc);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -95,7 +99,7 @@ public class FileList extends ListFragment implements IFileManagerListener,
         Log.i(TAG, "Saved Instance ");
     }
 
-    public void updateList(FileInfo[] files) {
+    public void updateList(Entry[] files) {
         mAdapter.updateInfo(files);
     }
 
@@ -114,24 +118,24 @@ public class FileList extends ListFragment implements IFileManagerListener,
     }
 
     private void showFileDialog() {
-        dialog = FileDialog.newInstance(this);
+        dialog = FileDialog.newInstance(fileTarget);
         dialog.show(activity.getSupportFragmentManager(), "Files");
     }
 
     @Override
     public void notifyDialogListener(FileDialogOptions options) {
-        Log.i(TAG, "Received " + options + " " + fileTarget);
+        Log.i(TAG, "Received " + options + " " + fileTarget.fileName());
         if (fileTarget != null) {
             switch (options) {
                 default:
                 case SYNC:
-                    
-                    fManager.uploadFile(fileTarget.getEntry());
+//                    fManager.uploadFile(fileTarget);
+                    dManager.updateFile(fileTarget);
                     break;
                 case SHARE:
                     break;
                 case OPEN:
-                    fManager.downloadFile(fileTarget.getEntry());
+                    fManager.downloadFile(fileTarget);
                     break;
             }
             if (dialog != null) {
@@ -141,12 +145,12 @@ public class FileList extends ListFragment implements IFileManagerListener,
     }
 
     @Override
-    public void notifyFileManagerListener(FileInfo[] files) {
+    public void notifyFileManagerListener(Entry[] files) {
         updateList(files);
     }
 
     @Override
-    public void notifyFileManagerFileReady(Entry file, String cacheDir) {
+    public void notifyFileManagerFileIsReady(Entry file, String cacheDir) {
         String path = cacheDir;
         Log.i(TAG, "File path " + path);
         File targetFile = new File(path);
