@@ -11,10 +11,4 @@ public class StaticInfo {
     
     public final static String APP_DATASTORE_KEY = "8hz1oi5jqgnd8f2";
     public final static String APP_DATASTORE_SECRET = "ddjowt0v7nl1mun";
-    
-    // Geodata ---
-    public final static String LATITUDE = "lat";
-    public final static String LONGITUDE = "long";
-    public final static String LAST_LOC = "lastLoc";
-       
 }

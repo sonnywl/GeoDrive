@@ -5,26 +5,29 @@ import android.content.Context;
 import android.util.Log;
 
 import com.dropbox.client2.DropboxAPI;
+import com.dropbox.client2.DropboxAPI.DropboxLink;
 import com.dropbox.client2.DropboxAPI.Entry;
 import com.dropbox.client2.android.AndroidAuthSession;
 import com.dropbox.client2.session.AppKeyPair;
 import com.geodrive.StaticInfo;
 import com.geodrive.files.tasks.FileDownloadTask;
 import com.geodrive.files.tasks.FileQueryTask;
+import com.geodrive.files.tasks.FileShareTask;
 import com.geodrive.files.tasks.FileUploadTask;
-import com.geodrive.files.tasks.IFileTaskListener;
+import com.geodrive.files.tasks.IFileListenerTask;
 import com.geodrive.preferences.SharedPreferenceManager;
 
 import java.io.File;
 import java.util.ArrayList;
 
-public class FileManager implements IFileTaskListener {
+public class FileManager implements IFileListenerTask {
 
     public static final String TAG = FileManager.class.getSimpleName();
     private static FileManager fileManager;
     private SharedPreferenceManager sManager;
     private ArrayList<IFileManagerListener> fileManagerClients;
     private Entry targetEntry;
+    private String[] recipents;
 
     public static FileManager getInstance(Context applicationContext) {
         if (fileManager == null) {
@@ -48,6 +51,12 @@ public class FileManager implements IFileTaskListener {
         new FileQueryTask(mDBApi, this).execute(dir);
     }
 
+    public void shareFile(final Entry entry, String[] recipentList) {
+        targetEntry = entry;
+        recipents = recipentList;
+        new FileShareTask(mDBApi, this).execute(entry.path);
+    }
+
     public void uploadFile(final Entry fileEntry) {
         targetEntry = fileEntry;
         new FileUploadTask(mContext, mDBApi, this).execute(fileEntry);
@@ -67,8 +76,13 @@ public class FileManager implements IFileTaskListener {
         }
     }
 
-    public void openFile(Entry fileEntry, String cacheDir) {
-        fileManagerClients.get(0).notifyFileManagerFileIsReady(fileEntry, cacheDir);
+    @Override
+    public void notifyFileManagerListenerShareLink(FileTaskState state, DropboxLink link) {
+        if (state == FileTaskState.SHARE_LINK && recipents != null) {
+            for (IFileManagerListener listener : fileManagerClients) {
+                listener.notifyFileManagerShareLinkIsReady(link.url, recipents);
+            }
+        }
     }
 
     @Override
@@ -76,6 +90,10 @@ public class FileManager implements IFileTaskListener {
         for (IFileManagerListener listener : fileManagerClients) {
             listener.notifyFileManagerListener(files);
         }
+    }
+
+    public void openFile(Entry fileEntry, String cacheDir) {
+        fileManagerClients.get(0).notifyFileManagerFileIsReady(fileEntry, cacheDir);
     }
 
     private void storeAuth(AndroidAuthSession session) {
@@ -108,6 +126,8 @@ public class FileManager implements IFileTaskListener {
             } catch (IllegalStateException e) {
                 Log.i("DbAuthLog", "Error authenticating", e);
             }
+        } else {
+            loadAuth(session);
         }
     }
 

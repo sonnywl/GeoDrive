@@ -8,7 +8,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.dropbox.client2.DropboxAPI.Entry;
 import com.geodrive.files.dropbox.FileDataStore;
+
+import java.util.ArrayList;
 
 /**
  * SQLite Manager for file metadata that we defined for location information
@@ -20,6 +23,14 @@ public class GeoDriveDBManager {
     private DbHelper dbhelper;
     private SQLiteDatabase db;
     private Context context;
+
+    public static final int DB_VERSION = 1;
+    public static final String DB_NAME = "GeoDriveDB";
+    public static final String LONG = "long";
+    public static final String LAT = "lat";
+    public static final String RECENT = "client_mtime";
+    public static final String TASK_ID = "id";
+    public static final String PATH = "path";
 
     public static GeoDriveDBManager getInstance(Context context) {
         if (manager == null) {
@@ -73,28 +84,47 @@ public class GeoDriveDBManager {
         return db.delete(DB_NAME, null, null);
     }
 
+    public FileDataStore[] queryAllData() {
+        return generateCursor(null, null);
+    }
+
+    public FileDataStore[] queryDataRange(Entry[] files) {
+        String[] selectionArgs = new String[files.length];
+        for (int i = 0; i < files.length; i++) {
+            selectionArgs[i] = files[i].path;
+            Log.i(TAG, selectionArgs[i]);
+        }
+        return generateCursor(PATH + " = ?", selectionArgs);
+    }
+
     public FileDataStore queryData(String query_path) {
-        String[] columns = new String[] {
-                TASK_ID, LONG, LAT, PATH, RECENT
-        };
-        Cursor query = db
-                .query(DB_NAME, columns, PATH + " = '" + query_path + "'", null, null, null, null);
+        return generateCursor(PATH + " = '" + query_path + "'", null)[0];
+    }
+
+    static final String[] columns = new String[] {
+            TASK_ID, LONG, LAT, PATH, RECENT
+    };
+
+    private FileDataStore[] generateCursor(String selection, String[] selectionArgs) {
+        Cursor query = db.query(DB_NAME, columns, selection, selectionArgs, null, null, null);
         int taskId = query.getColumnIndex(TASK_ID);
         int longit = query.getColumnIndex(LONG);
         int lat = query.getColumnIndex(LAT);
         int path = query.getColumnIndex(PATH);
         int recent = query.getColumnIndex(RECENT);
-
-        for (query.moveToFirst(); !query.isAfterLast();) {
+        ArrayList<FileDataStore> list = new ArrayList<FileDataStore>();
+        while (query.moveToNext()) {
             FileDataStore id = FileDataStore.newInstance(
                     query.getString(taskId),
                     query.getDouble(longit),
                     query.getDouble(lat),
                     query.getString(path),
                     query.getString(recent));
-            return id;
+            list.add(id);
         }
-        return null;
+        query.close();
+        return list.toArray(new FileDataStore[list.size()]);
+
     }
 
     private static class DbHelper extends SQLiteOpenHelper {
@@ -119,12 +149,4 @@ public class GeoDriveDBManager {
             onCreate(db);
         }
     }
-
-    public static final int DB_VERSION = 1;
-    public static final String DB_NAME = "GeoDriveDB";
-    public static final String LONG = "long";
-    public static final String LAT = "lat";
-    public static final String RECENT = "client_mtime";
-    public static final String TASK_ID = "id";
-    public static final String PATH = "path";
 }

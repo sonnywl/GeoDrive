@@ -21,4 +21,8 @@ public class FileDataStore {
         path = pathDir;
         mtime = time;
     }
+
+    public String getFileName() {
+        return path.substring(path.lastIndexOf("/"), path.length());
+    }
 }

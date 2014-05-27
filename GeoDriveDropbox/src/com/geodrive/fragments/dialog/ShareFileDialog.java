@@ -8,23 +8,19 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 
-import com.dropbox.client2.DropboxAPI.Entry;
+public class ShareFileDialog extends DialogFragment {
 
-/**
- * Dialog fragment to prompt user for: Sharing, Sync
- * 
- * @author Sonny
- */
-public class FileDialog extends DialogFragment {
-    public static final String TAG = FileDialog.class.getSimpleName();
-    private FileDialogOnClickListener callback;
-    private String fileName;
+    public static final String TAG = ShareFileDialog.class.getSimpleName();
     private static final String FILENAME = "filename";
+    private static final String CONTACTS = "contacts";
+    private ShareFileDialogOnClickListener callback;
+    String fileName;
 
-    public static FileDialog newInstance(Entry fileTarget) {
+    public static ShareFileDialog newInstance(String fileName, String[] contacts) {
         Bundle args = new Bundle();
-        args.putString(FILENAME, fileTarget.fileName());
-        FileDialog dialog = new FileDialog();
+        args.putString(FILENAME, fileName);
+        args.putStringArray(CONTACTS, contacts);
+        ShareFileDialog dialog = new ShareFileDialog();
         dialog.setArguments(args);
         return dialog;
     }
@@ -33,7 +29,7 @@ public class FileDialog extends DialogFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            callback = (FileDialogOnClickListener) activity;
+            callback = (ShareFileDialogOnClickListener) activity;
             fileName = getArguments().getString(FILENAME);
         } catch (ClassCastException e) {
             // The activity doesn't implement the interface, throw exception
@@ -47,36 +43,31 @@ public class FileDialog extends DialogFragment {
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Options").setMessage(fileName)
-                .setPositiveButton("Share", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Email", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        callback.notifyFileDialogListener(FileDialogOptions.SHARE);
+                        callback.notifyShareFileDialogListener(ShareFileDialogOptions.EMAIL);
                     }
                 })
-                .setNeutralButton("Sync", new DialogInterface.OnClickListener() {
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        callback.notifyFileDialogListener(FileDialogOptions.SYNC);
-                    }
-                })
-                .setNegativeButton("Open", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        callback.notifyFileDialogListener(FileDialogOptions.OPEN);
+                        callback.notifyShareFileDialogListener(ShareFileDialogOptions.CANCEL);
                     }
                 });
         return builder.create();
     }
 
-    public enum FileDialogOptions {
-        SHARE, SYNC, CANCEL, OPEN
+    public enum ShareFileDialogOptions {
+        EMAIL, SMS, BLUETOOTH, CANCEL
     };
 
-    public interface FileDialogOnClickListener {
+    public interface ShareFileDialogOnClickListener {
 
         /**
          * Returns the selected enum of the user
          * 
          * @param options
          */
-        void notifyFileDialogListener(FileDialogOptions options);
+        void notifyShareFileDialogListener(ShareFileDialogOptions options);
     }
 
 }

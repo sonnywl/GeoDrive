@@ -18,8 +18,7 @@ public class FileLocationListener implements LocationListener {
     private LocationManager locManager;
 
     private boolean isGPSEnabled = false,
-            isNetworkEnabled = false,
-            canGetLocation = false;
+            isNetworkEnabled = false;
 
     Location location; // location
     double latitude; // latitude
@@ -39,7 +38,7 @@ public class FileLocationListener implements LocationListener {
 
     }
 
-    public Location updateLocation() {
+    public Location getLocation() {
         try {
             // getting GPS status
             isGPSEnabled = locManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
@@ -50,7 +49,6 @@ public class FileLocationListener implements LocationListener {
             if (!isGPSEnabled && !isNetworkEnabled) {
                 // no network provider is enabled
             } else {
-                this.canGetLocation = true;
                 // First get location from Network Provider
                 if (isNetworkEnabled) {
                     locManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
@@ -86,7 +84,6 @@ public class FileLocationListener implements LocationListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return location;
     }
 

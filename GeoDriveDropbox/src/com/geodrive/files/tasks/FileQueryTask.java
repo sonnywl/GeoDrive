@@ -15,9 +15,9 @@ import java.util.List;
 public class FileQueryTask extends AsyncTask<String, Void, Entry[]> {
     public static final String TAG = FileQueryTask.class.getSimpleName();
     private DropboxAPI<AndroidAuthSession> mDBApi;
-    private IFileTaskListener mListener;
+    private IFileListenerTask mListener;
 
-    public FileQueryTask(DropboxAPI<AndroidAuthSession> mApi, IFileTaskListener listener) {
+    public FileQueryTask(DropboxAPI<AndroidAuthSession> mApi, IFileListenerTask listener) {
         mDBApi = mApi;
         mListener = listener;
     }

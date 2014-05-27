@@ -6,20 +6,18 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 
-import com.geodrive.files.FileManager;
-import com.geodrive.preferences.SharedPreferenceManager;
-
 public class GeoDriveService extends Service {
     public static final String TAG = GeoDriveService.class.getSimpleName();
     private final IBinder mBinder = new GeoDriveBinder();
-    private SharedPreferenceManager sManager;
-    private FileManager fManager;
+//    private SharedPreferenceManager sManager;
+//    private FileManager fManager;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        sManager = SharedPreferenceManager.getInstance(getApplicationContext());
-        fManager = FileManager.getInstance(getApplicationContext());
+        // sManager =
+        // SharedPreferenceManager.getInstance(getApplicationContext());
+        // fManager = FileManager.getInstance(getApplicationContext());
     }
 
     @Override

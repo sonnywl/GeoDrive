@@ -5,8 +5,13 @@
     <string name="hello_world">Hello world!</string>
     <string name="login">Login</string>
     <string name="logout">Logout</string>
-    <string name="refresh">Refresh</string>
+    <string name="root">Root Dir.</string>
     <string name="up">Up</string>
-    <string name="DropboxNotConnected"> Dropbox Not Connected</string>
+    <string name="DropboxNotConnected">Dropbox Not Connected</string>
+    <string name="ContactList">Contact List</string>
     <string name="clear">Clear All</string>
+    <string name="confirm">Confirm</string>
+    <string name="location_all">Loc. All</string>
+    <string name="location_immediate">Loc. Near</string>
+
 </resources>

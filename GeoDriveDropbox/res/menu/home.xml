@@ -4,6 +4,26 @@
     tools:context="com.geodrivedropbox.HomeActivity" >
 
     <item
+        android:id="@+id/action_confirm"
+        android:orderInCategory="50"
+        android:title="@string/confirm"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/action_location"
+        android:orderInCategory="50"
+        android:title="@string/location_all"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/action_up"
+        android:orderInCategory="100"
+        android:title="@string/up"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/action_root"
+        android:orderInCategory="100"
+        android:title="@string/root"
+        app:showAsAction="never"/>
+    <item
         android:id="@+id/action_login"
         android:orderInCategory="100"
         android:title="@string/login"
@@ -18,15 +38,5 @@
         android:orderInCategory="100"
         android:title="@string/clear"
         app:showAsAction="never"/>
-    <item
-        android:id="@+id/action_refresh"
-        android:orderInCategory="100"
-        android:title="@string/refresh"
-        app:showAsAction="always"/>
-    <item
-        android:id="@+id/action_up"
-        android:orderInCategory="100"
-        android:title="@string/up"
-        app:showAsAction="always"/>
 
 </menu>

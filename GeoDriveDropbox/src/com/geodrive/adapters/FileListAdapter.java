@@ -13,27 +13,27 @@ import com.geodrive.R;
 
 public class FileListAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
-    private Entry[] fileList;
+    private Entry[] fileEntryList;
 
-    public FileListAdapter(Context context, Entry[] fileInfos) {
+    public FileListAdapter(Context context, Entry[] fileEntries) {
         mInflater = LayoutInflater.from(context);
-        fileList = fileInfos;
+        fileEntryList = fileEntries;
     }
 
-    public void updateInfo(Entry[] files) {
-        fileList = null;
-        fileList = files;
+    public void updateInfo(Entry[] fileEntries) {
+        fileEntryList = null;
+        fileEntryList = fileEntries;
         notifyDataSetChanged();
     }
 
     @Override
     public int getCount() {
-        return fileList.length;
+        return fileEntryList.length;
     }
 
     @Override
     public Object getItem(int position) {
-        return fileList[position];
+        return fileEntryList[position];
     }
 
     @Override
@@ -45,7 +45,7 @@ public class FileListAdapter extends BaseAdapter {
     public View getView(int position, View view, ViewGroup parent) {
         final ViewHolder holder;
         if (view == null) {
-            view = mInflater.inflate(R.layout.folder_list_adapter, parent, false);
+            view = mInflater.inflate(R.layout.adapter_folder_list, parent, false);
             holder = new ViewHolder();
             view.setTag(holder);
         } else {
@@ -54,12 +54,8 @@ public class FileListAdapter extends BaseAdapter {
 
         holder.name = (TextView) view.findViewById(R.id.list_name);
         holder.description = (TextView) view.findViewById(R.id.list_description);
+        holder.name.setText(fileEntryList[position].fileName());
         holder.description.setVisibility(View.GONE);
-
-        Entry file = fileList[position];
-        holder.name.setText(file.fileName());
-//        holder.description.setText(file.getMetadata());
-
         return view;
     }
 

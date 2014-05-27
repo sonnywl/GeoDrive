@@ -10,6 +10,9 @@ public interface IFileManagerListener {
      * 
      * @author Sonny
      */
+
+    void notifyFileManagerShareLinkIsReady(String link, String[] recipents);
+
     void notifyFileManagerFileIsReady(Entry file, String cacheDir);
 
     void notifyFileManagerListener(Entry[] files);
