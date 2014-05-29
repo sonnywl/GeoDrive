@@ -89,10 +89,6 @@ public class DataStoreManager {
             entry.path = store[i].path;
             double distance = distance(loc.getLatitude(), loc.getLongitude()
                     , store[i].latitude, store[i].longitude, 'M');
-            Log.i(TAG, entry.path);
-            Log.i(TAG, "Loc " + loc.getLatitude() + " " + loc.getLongitude());
-            Log.i(TAG, "Stor " + store[i].latitude + " " + store[i].longitude);
-            Log.i(TAG, "Dis " + distance);
             if (distance < 10) {
                 entries.add(entry);
             }
